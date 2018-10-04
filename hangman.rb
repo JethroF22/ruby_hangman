@@ -85,16 +85,41 @@ class Hangman
             game.main
         else
             games = Dir.glob("*.yml")
-            game_names = games.collect do |game|
-                game.split(".")[0]
+            if games.length == 0
+                puts "There are no saved games to load"
+                puts "Would you like to start a new game? (y/n)"
+                answer = gets.chomp.downcase
+                while !["y", "n"].include? answer
+                    puts "Please enter either (y)es or (n)o"
+                    answer = gets.chomp.downcase
+                end
+                if answer.include? "y"
+                    game = self.new
+                    game.main
+                else
+                    puts "Goodbye!"
+                    exit
+                end
+            else
+                game_names = games.collect do |game|
+                    game.split(".")[0]
+                end
+                puts "Which of the following games would you like to open?"
+                game_names.each_with_index do |game, index|
+                    puts "\t" + (index + 1).to_s + ": " + game
+                end
+                answer = gets.chomp.to_i - 1
+                if (answer < 0) || (answer > games.length)
+                    puts "Please enter a number between 1 and #{games.length}"
+                    puts "Which of the following games would you like to open?"
+                    game_names.each_with_index do |game, index|
+                        puts "\t" + (index + 1).to_s + ": " + game
+                    end
+                    answer = gets.chomp.to_i - 1
+                end
+                game = YAML.load_file(games[answer])
+                game.main
             end
-            puts "Which of the following games would you like to open?"
-            game_names.each_with_index do |game, index|
-                puts "\t" + (index + 1).to_s + ": " + game
-            end
-            answer = gets.chomp.to_i - 1
-            game = YAML.load_file(games[answer])
-            game.main
         end
     end
 end
